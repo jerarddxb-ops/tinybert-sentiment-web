@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sentiment Analyzer</title>
+</head>
+<body>
+    <h2>Type a sentence to see the sentiment:</h2>
+    <input type="text" id="sentence" size="50">
+    <button onclick="analyze()">Analyze</button>
+    <p id="result"></p>
+
+    <script>
+        async function analyze() {
+            const text = document.getElementById("sentence").value;
+            const response = await fetch("http://127.0.0.1:8000/predict", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ text: text })
+            });
+            const data = await response.json();
+            document.getElementById("result").innerText = "Sentiment: " + data.sentiment;
+        }
+    </script>
+</body>
+</html>
