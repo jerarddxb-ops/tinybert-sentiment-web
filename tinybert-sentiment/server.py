@@ -7,9 +7,11 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 # Initialize FastAPI app
 app = FastAPI()
 
-# Since Render root directory is set to "tinybert-sentiment",
-# the model folder is directly inside the working directory.
-MODEL_PATH = "Model_files"
+# Get absolute path to the folder where this file lives
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Build absolute path to model files
+MODEL_PATH = os.path.join(BASE_DIR, "Model_files")
 
 # Load tokenizer and model from local files
 tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
@@ -19,7 +21,7 @@ model = AutoModelForSequenceClassification.from_pretrained(MODEL_PATH)
 class SentimentRequest(BaseModel):
     text: str
 
-# Optional health check route
+# Health check endpoint
 @app.get("/")
 def root():
     return {"status": "ok", "message": "TinyBERT sentiment API is running"}
