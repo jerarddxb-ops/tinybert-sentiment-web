@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
+import os
+import uvicorn
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -23,3 +25,8 @@ def predict_sentiment(request: SentimentRequest):
         logits = outputs.logits
         predicted_class = torch.argmax(logits, dim=1).item()
     return {"text": request.text, "predicted_class": predicted_class}
+
+# Entry point for Render
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))  # Render sets $PORT automatically
+    uvicorn.run(app, host="0.0.0.0", port=port)
