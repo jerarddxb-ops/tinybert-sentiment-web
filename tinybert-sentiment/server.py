@@ -1,6 +1,8 @@
 import os
 import torch
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from transformers import BertTokenizerFast, AutoModelForSequenceClassification
 
@@ -8,15 +10,24 @@ app = FastAPI()
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_PATH = os.path.join(BASE_DIR, "model_files")
+FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
+INDEX_FILE = os.path.join(FRONTEND_DIR, "index.html")
 
 tokenizer = BertTokenizerFast.from_pretrained(MODEL_PATH, local_files_only=True)
 model = AutoModelForSequenceClassification.from_pretrained(MODEL_PATH, local_files_only=True)
+
+# Optional: serve any extra static files from the frontend folder
+app.mount("/frontend", StaticFiles(directory=FRONTEND_DIR), name="frontend")
 
 class SentimentRequest(BaseModel):
     text: str
 
 @app.get("/")
-def root():
+def serve_frontend():
+    return FileResponse(INDEX_FILE)
+
+@app.get("/health")
+def health():
     return {"status": "ok", "message": "TinyBERT sentiment API is running"}
 
 @app.post("/predict")
