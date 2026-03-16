@@ -38,7 +38,9 @@ def predict_sentiment(request: SentimentRequest):
     with torch.no_grad():
         outputs = model(**inputs)
         logits = outputs.logits
-        predicted_class = torch.argmax(logits, dim=1).item()
+        probabilities = torch.nn.functional.softmax(logits, dim=1)
+        predicted_class = torch.argmax(probabilities, dim=1).item()
+        confidence = probabilities[0][predicted_class].item()
 
     sentiment_map = {
         0: "Negative 😞",
@@ -50,7 +52,8 @@ def predict_sentiment(request: SentimentRequest):
 
     return {
         "text": request.text,
-        "sentiment": sentiment
+        "sentiment": sentiment,
+        "confidence": round(confidence * 100, 1)
     }
 
 if __name__ == "__main__":
