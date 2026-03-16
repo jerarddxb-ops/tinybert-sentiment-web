@@ -2,7 +2,6 @@ import os
 import torch
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from transformers import BertTokenizerFast, AutoModelForSequenceClassification
 
@@ -15,9 +14,6 @@ INDEX_FILE = os.path.join(FRONTEND_DIR, "index.html")
 
 tokenizer = BertTokenizerFast.from_pretrained(MODEL_PATH, local_files_only=True)
 model = AutoModelForSequenceClassification.from_pretrained(MODEL_PATH, local_files_only=True)
-
-# Optional: serve any extra static files from the frontend folder
-app.mount("/frontend", StaticFiles(directory=FRONTEND_DIR), name="frontend")
 
 class SentimentRequest(BaseModel):
     text: str
