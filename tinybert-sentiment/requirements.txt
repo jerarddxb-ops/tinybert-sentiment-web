@@ -4,3 +4,4 @@ transformers
 torch
 pydantic
 protobuf>=4.0.0
+sentencepiece
