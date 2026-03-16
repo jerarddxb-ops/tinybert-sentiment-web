@@ -7,7 +7,7 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      max-width: 700px;
+      max-width: 760px;
       margin: 60px auto;
       padding: 20px;
       background: #f7f7f7;
@@ -21,7 +21,7 @@
     p {
       margin-bottom: 20px;
       color: #555;
-      line-height: 1.5;
+      line-height: 1.6;
     }
 
     textarea {
@@ -56,6 +56,7 @@
       background: white;
       border-radius: 8px;
       border: 1px solid #ddd;
+      line-height: 1.6;
     }
 
     .loading {
@@ -64,6 +65,12 @@
 
     .error {
       color: #b91c1c;
+    }
+
+    .small-note {
+      margin-top: 14px;
+      color: #666;
+      font-size: 14px;
     }
   </style>
 </head>
@@ -112,7 +119,12 @@
 
         resultBox.innerHTML = `
           <strong>Input:</strong> ${data.text}<br><br>
-          <strong>Sentiment:</strong> ${data.sentiment}
+          <strong>Sentiment:</strong> ${data.sentiment}<br>
+          <strong>Confidence:</strong> ${data.confidence}%<br><br>
+          <em>Look, this is a very dumb model, so don't be mean if it is wrong. Once we teach it more, it will get smarter.</em>
+          <div class="small-note">
+            Model trained and all related work done exclusively by Jerard "The Smartest Man in The Solar System".
+          </div>
         `;
       } catch (error) {
         resultBox.innerHTML = "<span class='error'>Something went wrong calling the API.</span>";
