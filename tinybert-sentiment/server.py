@@ -2,41 +2,50 @@ import os
 import torch
 from fastapi import FastAPI
 from pydantic import BaseModel
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from transformers import BertTokenizerFast, AutoModelForSequenceClassification
 
-# Initialize FastAPI
 app = FastAPI()
 
-# Get the directory where server.py is located
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-# Path to model folder
 MODEL_PATH = os.path.join(BASE_DIR, "model_files")
 
-# Load tokenizer and model
-tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH, local_files_only=True)
+tokenizer = BertTokenizerFast.from_pretrained(MODEL_PATH, local_files_only=True)
 model = AutoModelForSequenceClassification.from_pretrained(MODEL_PATH, local_files_only=True)
 
-# Request schema
 class SentimentRequest(BaseModel):
     text: str
 
-# Prediction endpoint
+@app.get("/")
+def root():
+    return {"status": "ok", "message": "TinyBERT sentiment API is running"}
+
 @app.post("/predict")
 def predict_sentiment(request: SentimentRequest):
-    inputs = tokenizer(request.text, return_tensors="pt")
+    inputs = tokenizer(
+        request.text,
+        return_tensors="pt",
+        truncation=True,
+        padding=True
+    )
 
     with torch.no_grad():
         outputs = model(**inputs)
         logits = outputs.logits
         predicted_class = torch.argmax(logits, dim=1).item()
 
-    return {
-        "text": request.text,
-        "predicted_class": predicted_class
+    sentiment_map = {
+        0: "Negative 😞",
+        1: "Neutral 😐",
+        2: "Positive 🙂"
     }
 
-# Run locally or on Render
+    sentiment = sentiment_map.get(predicted_class, "Unknown")
+
+    return {
+        "text": request.text,
+        "sentiment": sentiment
+    }
+
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 8000))
