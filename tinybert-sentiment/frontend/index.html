@@ -1,27 +1,124 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Sentiment Analyzer</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TinyBERT Sentiment Tester</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 700px;
+      margin: 60px auto;
+      padding: 20px;
+      background: #f7f7f7;
+      color: #222;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    p {
+      margin-bottom: 20px;
+      color: #555;
+      line-height: 1.5;
+    }
+
+    textarea {
+      width: 100%;
+      height: 140px;
+      padding: 12px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      resize: vertical;
+      box-sizing: border-box;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 12px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      background: #2563eb;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    .result {
+      margin-top: 25px;
+      padding: 16px;
+      background: white;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+
+    .loading {
+      color: #666;
+    }
+
+    .error {
+      color: #b91c1c;
+    }
+  </style>
 </head>
 <body>
-    <h2>Type a sentence to see the sentiment:</h2>
-    <input type="text" id="sentence" size="50">
-    <button onclick="analyze()">Analyze</button>
-    <p id="result"></p>
+  <h1>TinyBERT Sentiment Tester</h1>
 
-    <script>
-        async function analyze() {
-            const text = document.getElementById("sentence").value;
-            const response = await fetch("http://127.0.0.1:8000/predict", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ text: text })
-            });
-            const data = await response.json();
-            document.getElementById("result").innerText = "Sentiment: " + data.sentiment;
-        }
-    </script>
+  <p>
+    Try the sentiment model!<br><br>
+    Enter a short, simple sentence and the AI will classify it as <b>positive</b>, <b>neutral</b>, or <b>negative</b>.<br><br>
+    Works best with clear statements like:<br>
+    "I love this movie"<br>
+    "This is terrible"<br>
+    "The weather is okay"
+  </p>
+
+  <textarea id="textInput" placeholder="Example: I love this movie"></textarea>
+  <br />
+  <button onclick="analyzeSentiment()">Analyze Sentiment</button>
+
+  <div class="result" id="resultBox">
+    Waiting for input...
+  </div>
+
+  <script>
+    async function analyzeSentiment() {
+      const text = document.getElementById("textInput").value.trim();
+      const resultBox = document.getElementById("resultBox");
+
+      if (!text) {
+        resultBox.innerHTML = "<span class='error'>Please enter some text first.</span>";
+        return;
+      }
+
+      resultBox.innerHTML = "<span class='loading'>Analyzing...</span>";
+
+      try {
+        const response = await fetch("https://tinybert-sentiment-web.onrender.com/predict", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ text })
+        });
+
+        const data = await response.json();
+
+        resultBox.innerHTML = `
+          <strong>Input:</strong> ${data.text}<br><br>
+          <strong>Sentiment:</strong> ${data.sentiment}
+        `;
+      } catch (error) {
+        resultBox.innerHTML = "<span class='error'>Something went wrong calling the API.</span>";
+        console.error(error);
+      }
+    }
+  </script>
 </body>
 </html>
