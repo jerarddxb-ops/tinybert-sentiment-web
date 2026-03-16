@@ -1,9 +1,6 @@
---extra-index-url https://download.pytorch.org/whl/cpu
-
 fastapi
 uvicorn
 transformers
 pydantic
 protobuf>=4.0.0
 sentencepiece
-torch==2.10.0+cpu
